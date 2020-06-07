@@ -1,0 +1,1 @@
+"./PCA9955B_msp430xfxx.obj" "./main.obj" "../lnk_msp430f2274.cmd" -llibc.a 
