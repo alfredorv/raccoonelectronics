@@ -2,7 +2,7 @@
  * LiquidCrystalDisplay.c
  *
  *  Created on: 09/06/2020
- *      Author: Ing. Alfredo Renterï¿½a Villanueva
+ *      Author: Ing. Alfredo Rentería Villanueva
  */
 
 #include  <msp430.h>
@@ -50,10 +50,23 @@ void envia_dato(unsigned char dato) {
  */
 void envia_comando(unsigned char comando) {
     P1OUT &= ~RS;                     // RS = LOW para indicar que se trata de un comando
-    espera_n_ms(1);                   // Espera 1ms para asegurar que RS estï¿½ en LOW
+    espera_n_ms(1);                   // Espera 1ms para asegurar que RS está en LOW
 
     envia_dato(comando >> 4);
     envia_dato(comando);
+}
+
+/*
+ * nombre: print_caracter
+ * params: dato
+ * return: none
+ */
+void print_caracter(unsigned char dato) {
+    P1OUT |= RS;                      // RS = HIGH para indicar que se trata de un dato
+    espera_n_ms(1);                   // Espera 1ms para asegurar que RS está en LOW
+
+    envia_dato(dato >> 4);
+    envia_dato(dato);
 }
 
 /*
@@ -64,12 +77,12 @@ void envia_comando(unsigned char comando) {
 void inicializar_lcd(void) {
     unsigned char i = 0;
 
-    espera_n_ms(35);                // Espera mï¿½s de 30ms, segï¿½n la datasheet del driver NT7605
+    espera_n_ms(35);                // Espera más de 30ms, según la datasheet del driver NT7605
 
     P1OUT &= ~RS;                   // RS = LOW para indicar que se trata de un comando
 
     for(i = 0; i < sizeof(tabla_nt7605); i++) {
-        envia_dato(tabla_nt7605[i]);             // Envia cada dato de la lista de inicializaciï¿½n
+        envia_dato(tabla_nt7605[i]);             // Envia cada dato de la lista de inicialización
         espera_n_ms(1);
     }
 }
@@ -85,13 +98,33 @@ void print(char *cadena) {
     puntero = cadena;
 
     P1OUT |= RS;
+    espera_n_ms(1);                   // Espera 1ms para asegurar que RS está en HIGH
 
     while(*puntero != '\0') {
-        envia_dato(*puntero >> 4);
-        envia_dato(*puntero);
+        print_caracter(*puntero);
 
         espera_n_ms(1);
 
         puntero++;
+    }
+}
+
+/*
+ * nombre: print
+ * params: arreglo, posicion_memoria
+ * return: none
+ */
+void crear_caracter(unsigned char *arreglo, unsigned char posicion_cgram) {
+    unsigned char i = 0;
+
+    if(posicion_cgram > 7) posicion_cgram = 7;      // Limita la dirección de la RAM
+
+    envia_comando(0x40 | (posicion_cgram * 8));     // Selecciona CGRAM e indica la dirección
+
+    P1OUT |= RS;                                    // Indica que se enviarán datos (RS = HIGH)
+    espera_n_ms(1);                                 // Espera 1ms para asegurar que RS está en HIGH
+
+    for(i = 0; i < 8; i++) {
+        print_caracter(arreglo[i]);                     // Envía el caracter personalizado
     }
 }
