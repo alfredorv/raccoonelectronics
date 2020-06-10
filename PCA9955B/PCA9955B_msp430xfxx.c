@@ -219,13 +219,13 @@ void awesome_example(void) {
         led_pwm(14, i);
         __delay_cycles(10000);
     }
-    for(i = 0; i < 14; i++) {
+    for(i = 0; i < 15; i++) {
         for(j = 0; j < 255; j++) {
             led_pwm(i, j);
             __delay_cycles(1000);
         }
     }
-    for(i = 0; i < 14; i++) {
+    for(i = 0; i < 15; i++) {
         for(j = 255; j > 0; j--) {
             led_pwm(i, j);
             __delay_cycles(1000);
